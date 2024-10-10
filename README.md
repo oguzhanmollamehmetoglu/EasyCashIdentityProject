@@ -1,2 +1,2 @@
 # EasyCash - Bankacılık Sistemi
-Yapım aşamasındadır.
+Bu proje yapım aşamasındadır.
