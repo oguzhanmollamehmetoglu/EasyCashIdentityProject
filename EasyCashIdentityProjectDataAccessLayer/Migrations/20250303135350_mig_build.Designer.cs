@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EasyCashIdentityProjectDataAccessLayer.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20231027205444_mig_add_appuser_approle_tables")]
-    partial class mig_add_appuser_approle_tables
+    [Migration("20250303135350_mig_build")]
+    partial class mig_build
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -72,6 +72,9 @@ namespace EasyCashIdentityProjectDataAccessLayer.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ConfirmCode")
+                        .HasColumnType("int");
 
                     b.Property<string>("District")
                         .IsRequired()
@@ -150,6 +153,9 @@ namespace EasyCashIdentityProjectDataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerAccountID"), 1L, 1);
 
+                    b.Property<int>("AppUserID")
+                        .HasColumnType("int");
+
                     b.Property<string>("BankBranch")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -167,6 +173,8 @@ namespace EasyCashIdentityProjectDataAccessLayer.Migrations
 
                     b.HasKey("CustomerAccountID");
 
+                    b.HasIndex("AppUserID");
+
                     b.ToTable("CustomerAccounts");
                 });
 
@@ -181,6 +189,10 @@ namespace EasyCashIdentityProjectDataAccessLayer.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("ProcessDate")
                         .HasColumnType("datetime2");
 
@@ -188,9 +200,53 @@ namespace EasyCashIdentityProjectDataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ReceiverID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SenderID")
+                        .HasColumnType("int");
+
                     b.HasKey("CustomerAccountProcessID");
 
+                    b.HasIndex("ReceiverID");
+
+                    b.HasIndex("SenderID");
+
                     b.ToTable("customerAccountProcesses");
+                });
+
+            modelBuilder.Entity("EasyCashIdentityProjectEntityLayer.Concrete.ElectricBill", b =>
+                {
+                    b.Property<int>("ElectricBillID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ElectricBillID"), 1L, 1);
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("BillingPeriod")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContractNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PaidStatus")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ElectricBillID");
+
+                    b.ToTable("electricBills");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -296,6 +352,32 @@ namespace EasyCashIdentityProjectDataAccessLayer.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("EasyCashIdentityProjectEntityLayer.Concrete.CustomerAccount", b =>
+                {
+                    b.HasOne("EasyCashIdentityProjectEntityLayer.Concrete.AppUser", "AppUser")
+                        .WithMany("CustomerAccounts")
+                        .HasForeignKey("AppUserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
+            modelBuilder.Entity("EasyCashIdentityProjectEntityLayer.Concrete.CustomerAccountProcess", b =>
+                {
+                    b.HasOne("EasyCashIdentityProjectEntityLayer.Concrete.CustomerAccount", "ReceiverCustomer")
+                        .WithMany("CustomerReceiver")
+                        .HasForeignKey("ReceiverID");
+
+                    b.HasOne("EasyCashIdentityProjectEntityLayer.Concrete.CustomerAccount", "SenderCustomer")
+                        .WithMany("CustomerSender")
+                        .HasForeignKey("SenderID");
+
+                    b.Navigation("ReceiverCustomer");
+
+                    b.Navigation("SenderCustomer");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("EasyCashIdentityProjectEntityLayer.Concrete.AppRole", null)
@@ -345,6 +427,18 @@ namespace EasyCashIdentityProjectDataAccessLayer.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("EasyCashIdentityProjectEntityLayer.Concrete.AppUser", b =>
+                {
+                    b.Navigation("CustomerAccounts");
+                });
+
+            modelBuilder.Entity("EasyCashIdentityProjectEntityLayer.Concrete.CustomerAccount", b =>
+                {
+                    b.Navigation("CustomerReceiver");
+
+                    b.Navigation("CustomerSender");
                 });
 #pragma warning restore 612, 618
         }

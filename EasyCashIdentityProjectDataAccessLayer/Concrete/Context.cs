@@ -13,7 +13,7 @@ namespace EasyCashIdentityProjectDataAccessLayer.Concrete
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("server=OGUZHAN;initial catalog=EasyCashDb;integrated Security=true");
+            optionsBuilder.UseSqlServer("server=Huawei\\OGUZHAN;initial catalog=EasyCashDb;integrated Security=true");
         }
 
         public DbSet<CustomerAccount> CustomerAccounts { get; set; }
